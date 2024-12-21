@@ -15,7 +15,20 @@ fn apply_hanning_window(buffer: &mut [f32]) {
 
 fn main() {
     let host = cpal::default_host();
-    let device = host.default_input_device().expect("no input device");
+    
+    // List available input devices
+    println!("Available input devices:");
+    for device in host.input_devices().expect("error getting input devices") {
+        println!("  {}", device.name().unwrap());
+    }
+    
+    // Find BlackHole device
+    let device = host.input_devices()
+        .expect("error getting input devices")
+        .find(|x| x.name().map(|n| n.contains("BlackHole")).unwrap_or(false))
+        .expect("no BlackHole device found");
+    
+    println!("Using device: {}", device.name().unwrap());
     
     let config = cpal::StreamConfig {
         channels: 1,
